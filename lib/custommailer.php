@@ -65,7 +65,11 @@ class CustomMailer
         $mail->isSMTP();
         $mail->SMTPAuth = true;
 
-        $mail->addAddress($to);
+        $addresses = array_map('trim', explode(',', $to));
+
+        foreach ($addresses as $address) {
+            $mail->addAddress($address);
+        }
 
         $mail->Host = $this->host;
         $mail->Username = $this->userName;
