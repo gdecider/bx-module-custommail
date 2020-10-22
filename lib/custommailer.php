@@ -13,6 +13,7 @@ class CustomMailer
     private $config;
     private $host;
     private $userName;
+    private $userNameExt;
     private $password;
     private $smtpSecure;
     private $smtpPort;
@@ -23,6 +24,7 @@ class CustomMailer
 
         $this->host = Option::get($this->config['id'], 'CUSTOM_MAIL_HOST');
         $this->userName = Option::get($this->config['id'], 'CUSTOM_MAIL_USERNAME');
+        $this->userNameExt = Option::get($this->config['id'], 'CUSTOM_MAIL_USERNAME_EXT');
         $this->password = Option::get($this->config['id'], 'CUSTOM_MAIL_PASSWORD');
         $this->smtpSecure = Option::get($this->config['id'], 'CUSTOM_MAIL_SMTP_SECURE');
         $this->smtpPort = Option::get($this->config['id'], 'CUSTOM_MAIL_SMTP_PORT');
@@ -76,10 +78,17 @@ class CustomMailer
         $mail->Password = $this->password;
         $mail->SMTPSecure = $this->smtpSecure;
         $mail->Port = $this->smtpPort;
-        $mail->setFrom($this->userName);
+        if (!empty($this->userNameExt)) {
+            $mail->setFrom($this->userName, $this->userNameExt);
+        } else {
+            $mail->setFrom($this->userName);
+        }
 
         $arRows = preg_split("/((\r?\n)|(\r\n?))/", $additional_headers);
         foreach ($arRows as $header) {
+            if (false !== strpos($header, 'From: ')) {
+                continue;
+            }
             $mail->addCustomHeader($header);
         }
 
